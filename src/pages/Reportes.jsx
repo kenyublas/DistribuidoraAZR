@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  PieChart, Pie, Cell
 } from 'recharts';
 import './Reportes.css';
 
@@ -15,17 +15,17 @@ export default function Reportes({ ventas, productos }) {
 
   const filtrarVentas = () => {
     const desde = new Date(hoy);
-    if (periodo === 'hoy')    desde.setHours(0,0,0,0);
+    if (periodo === 'hoy') desde.setHours(0, 0, 0, 0);
     if (periodo === 'semana') desde.setDate(hoy.getDate() - 7);
-    if (periodo === 'mes')    desde.setDate(1);
-    if (periodo === 'todo')   return ventas;
+    if (periodo === 'mes') desde.setDate(1);
+    if (periodo === 'todo') return ventas;
     return ventas.filter(v => new Date(v.fecha + 'T12:00:00') >= desde);
   };
 
   const ventasFiltradas = filtrarVentas();
-  const totalPeriodo    = ventasFiltradas.reduce((s, v) => s + v.total, 0);
-  const nVentas         = ventasFiltradas.length;
-  const ticketPromedio  = nVentas > 0 ? totalPeriodo / nVentas : 0;
+  const totalPeriodo = ventasFiltradas.reduce((s, v) => s + v.total, 0);
+  const nVentas = ventasFiltradas.length;
+  const ticketPromedio = nVentas > 0 ? totalPeriodo / nVentas : 0;
 
   // Ventas por producto (pie)
   const pieData = productos.map(p => ({
@@ -59,7 +59,7 @@ export default function Reportes({ ventas, productos }) {
     <div className="rep-page">
       {/* Filtro período */}
       <div className="rep-period-row">
-        {['hoy','semana','mes','todo'].map(p => (
+        {['hoy', 'semana', 'mes', 'todo'].map(p => (
           <button key={p}
             className={`rep-period-btn ${periodo === p ? 'active' : ''}`}
             onClick={() => setPeriodo(p)}>
@@ -94,7 +94,7 @@ export default function Reportes({ ventas, productos }) {
               <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false}
                 tickFormatter={v => `S/${v}`} />
               <Tooltip formatter={v => `S/. ${v.toFixed(2)}`} />
-              <Bar dataKey="total" fill="#1d6fc4" radius={[4,4,0,0]} />
+              <Bar dataKey="total" fill="#1d6fc4" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -107,7 +107,7 @@ export default function Reportes({ ventas, productos }) {
           <div style={{ height: 220 }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, percent }) => `${name.split(' ')[0]} ${(percent*100).toFixed(0)}%`}>
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label={({ name, percent }) => `${name.split(' ')[0]} ${(percent * 100).toFixed(0)}%`}>
                   {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip formatter={v => `S/. ${v.toFixed(2)}`} />
@@ -123,7 +123,7 @@ export default function Reportes({ ventas, productos }) {
           <div className="rep-card-title">🏆 Top Clientes</div>
           {topClientes.map(([nombre, total], i) => (
             <div key={nombre} className="rep-top-row">
-              <span className="rep-rank">#{i+1}</span>
+              <span className="rep-rank">#{i + 1}</span>
               <span className="rep-top-name">{nombre}</span>
               <span className="rep-top-val">S/. {total.toFixed(2)}</span>
             </div>
