@@ -1,0 +1,57 @@
+/* src/pages/Reportes.css */
+.rep-page { display: flex; flex-direction: column; gap: 14px; }
+
+.rep-period-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.rep-period-btn {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 20px; font-size: 12px;
+  background: var(--card); color: var(--muted);
+  transition: all 0.15s;
+}
+.rep-period-btn.active {
+  background: var(--navy); color: #fff; border-color: var(--navy);
+}
+.rep-period-btn:hover:not(.active) { background: #f1f5f9; }
+
+.rep-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rep-kpi {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 12px;
+  box-shadow: var(--shadow); text-align: center;
+}
+.rep-kpi-label { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+.rep-kpi-val   { font-size: 16px; font-weight: 700; color: var(--text); }
+.rep-kpi-val.green { color: var(--green); }
+
+.rep-card {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.rep-card-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+
+.rep-top-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.rep-top-row:last-child { border-bottom: none; }
+.rep-rank { font-weight: 700; color: var(--accent); font-size: 14px; min-width: 24px; }
+.rep-top-name { flex: 1; font-size: 13px; }
+.rep-top-val  { font-weight: 700; color: var(--green); font-size: 13px; }
+
+.rep-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 8px 0; border-bottom: 1px solid var(--border); gap: 8px;
+}
+.rep-row:last-child { border-bottom: none; }
+.rep-row-left { display: flex; flex-direction: column; gap: 2px; }
+.rep-row-id   { font-size: 10px; color: var(--muted); }
+.rep-row-prod { font-size: 13px; font-weight: 600; }
+.rep-row-cli  { font-size: 11px; }
+.rep-row-right{ display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+@media (max-width: 480px) {
+  .rep-kpis { grid-template-columns: 1fr 1fr; }
+  .rep-kpi:last-child { grid-column: span 2; }
+}

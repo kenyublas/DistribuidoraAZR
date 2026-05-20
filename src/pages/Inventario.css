@@ -1,0 +1,209 @@
+/* src/pages/Inventario.css */
+.inv-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.inv-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  color: var(--text);
+}
+
+.inv-btn-add {
+  padding: 8px 14px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.inv-btn-add:hover {
+  background: var(--navy3);
+}
+
+.inv-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.inv-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.inv-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.inv-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 130px;
+}
+
+.inv-group-sm {
+  flex: 0 0 110px;
+  min-width: 90px;
+}
+
+.inv-group.inv-full {
+  flex: 1 1 100%;
+}
+
+.inv-group.inv-grow {
+  flex: 1 1 min(320px, 100%);
+}
+
+.inv-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.inv-group input,
+.inv-group select,
+.inv-group textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+}
+
+.inv-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.inv-group input:focus,
+.inv-group select:focus,
+.inv-group textarea:focus {
+  border-color: var(--accent2);
+}
+
+.inv-btn-save {
+  padding: 8px 16px;
+  background: var(--accent2);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.inv-btn-cancel {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.inv-quick-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.inv-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.inv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inv-prod-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inv-prod-info {
+  flex: 1;
+  min-width: 120px;
+}
+
+.inv-prod-name {
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+}
+
+.inv-prod-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.inv-stock-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.inv-stock-badge.ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.inv-stock-badge.low {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.inv-btn-edit {
+  padding: 6px 12px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.inv-btn-edit:hover {
+  background: #e2e8f0;
+}
+
+.inv-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inv-edit-actions {
+  display: flex;
+  gap: 8px;
+}

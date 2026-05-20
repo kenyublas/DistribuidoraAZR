@@ -1,0 +1,48 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --sidebar-w: 200px;
+  --navy:       #0f1e30;
+  --navy2:      #162840;
+  --navy3:      #1e3450;
+  --accent:     #f59e0b;
+  --accent2:    #1d6fc4;
+  --green:      #059669;
+  --red:        #dc2626;
+  --bg:         #eef2f7;
+  --card:       #ffffff;
+  --border:     #dde3ec;
+  --text:       #1a2535;
+  --muted:      #64748b;
+  --font:       'Plus Jakarta Sans', sans-serif;
+  --font-head:  'Syne', sans-serif;
+  --radius:     10px;
+  --shadow:     0 2px 12px rgba(0,0,0,0.07);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; }
+input, select, button, textarea { font-family: var(--font); }
+button { cursor: pointer; }
+a { text-decoration: none; color: inherit; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c5cdd8; border-radius: 10px; }
+
+/* Utility */
+.flex   { display: flex; }
+.col    { flex-direction: column; }
+.gap4   { gap: 4px; }
+.gap8   { gap: 8px; }
+.gap12  { gap: 12px; }
+.gap16  { gap: 16px; }
+.center { align-items: center; }
+.between{ justify-content: space-between; }
+.bold   { font-weight: 600; }
+.muted  { color: var(--muted); }
+.green  { color: var(--green); }
+.red    { color: var(--red); }
+.accent { color: var(--accent); }

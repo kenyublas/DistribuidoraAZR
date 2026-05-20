@@ -1,0 +1,132 @@
+/* src/pages/PuntoVenta.css */
+.pv-page { display: flex; flex-direction: column; gap: 14px; }
+
+.pv-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.pv-card-title {
+  font-size: 14px; font-weight: 600;
+  color: var(--text); margin-bottom: 12px;
+}
+
+.pv-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.pv-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+.pv-group.pv-grow { flex: 2; }
+.pv-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.pv-group input,
+.pv-group select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border 0.15s;
+}
+.pv-group input:focus,
+.pv-group select:focus { border-color: var(--accent2); }
+.pv-group { margin-bottom: 10px; }
+
+.pv-cliente-row { display: flex; gap: 6px; }
+.pv-cliente-row select { flex: 1; }
+.pv-btn-generic {
+  padding: 8px 10px;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 12px; white-space: nowrap;
+  color: var(--text);
+}
+.pv-btn-generic:hover { background: #e2e8f0; }
+.pv-input-nombre {
+  margin-top: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  width: 100%;
+  outline: none;
+}
+.pv-input-nombre:focus { border-color: var(--accent2); }
+
+.pv-tipo-toggle { display: flex; gap: 6px; flex-wrap: wrap; }
+.pv-tipo-btn {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 12px;
+  background: #f1f5f9;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+.pv-tipo-btn.active {
+  background: var(--accent2);
+  color: #fff;
+  border-color: var(--accent2);
+}
+
+.pv-total-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 4px 0 12px;
+}
+.pv-total-label  { font-size: 13px; font-weight: 600; color: var(--accent2); }
+.pv-total-amount { font-size: 24px; font-weight: 700; color: var(--accent2); }
+
+.pv-actions { display: flex; gap: 8px; }
+.pv-btn-primary {
+  flex: 1; padding: 10px 14px;
+  background: var(--navy);
+  color: #fff; border: none;
+  border-radius: 8px; font-size: 13px; font-weight: 600;
+  transition: background 0.15s;
+}
+.pv-btn-primary:hover { background: var(--navy3); }
+.pv-btn-secondary {
+  padding: 10px 16px;
+  background: #f1f5f9;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px;
+}
+.pv-btn-secondary:hover { background: #e2e8f0; }
+
+/* Stats */
+.pv-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.pv-stat {
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+}
+.pv-stat-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 3px; }
+.pv-stat-val   { font-size: 17px; font-weight: 700; color: var(--text); }
+.pv-stat-val.green { color: var(--green); }
+
+/* Ventas recientes */
+.pv-venta-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+  border-radius: 4px;
+}
+.pv-venta-item:last-child { border-bottom: none; }
+.pv-venta-item:hover { background: #f8fafc; padding-left: 6px; }
+.pvi-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+.pvi-prod  { font-weight: 600; font-size: 13px; }
+.pvi-monto { font-weight: 700; color: var(--green); font-size: 13px; }
+.pvi-sub   { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }

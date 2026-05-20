@@ -1,0 +1,60 @@
+/* src/pages/Clientes.css */
+.cli-page { display: flex; flex-direction: column; gap: 14px; }
+.cli-header { display: flex; align-items: center; justify-content: space-between; }
+.cli-title  { font-family: var(--font-head); font-size: 18px; }
+.cli-btn-add {
+  padding: 8px 14px; background: var(--navy); color: #fff;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 500;
+}
+.cli-btn-add:hover { background: var(--navy3); }
+
+.cli-card {
+  background: var(--card); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.cli-card-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+
+.cli-form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.cli-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+.cli-group.cli-grow { flex: 2; }
+.cli-group label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+.cli-group input {
+  padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 7px; background: #f8fafc;
+  font-size: 13px; color: var(--text); outline: none;
+}
+.cli-group input:focus { border-color: var(--accent2); }
+.cli-btn-save {
+  padding: 8px 16px; background: var(--accent2); color: #fff;
+  border: none; border-radius: 7px; font-size: 13px; font-weight: 500;
+}
+
+.cli-search-wrap { }
+.cli-search {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; background: var(--card); outline: none;
+}
+.cli-search:focus { border-color: var(--accent2); }
+
+.cli-list { display: flex; flex-direction: column; gap: 8px; }
+.cli-item { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.cli-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--navy3); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; flex-shrink: 0;
+}
+.cli-info { flex: 1; min-width: 120px; }
+.cli-name { font-weight: 600; font-size: 14px; }
+.cli-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.cli-stats { display: flex; gap: 12px; }
+.cli-stat-item { display: flex; flex-direction: column; align-items: flex-end; }
+.cli-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+.cli-stat-val   { font-size: 14px; font-weight: 700; }
+.cli-stat-val.green { color: var(--green); }
+
+.cli-empty { text-align: center; color: var(--muted); padding: 20px; }
