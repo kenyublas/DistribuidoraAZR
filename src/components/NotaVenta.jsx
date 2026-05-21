@@ -72,7 +72,7 @@ export default function NotaVenta({ venta, onClose }) {
           ¡Gracias por su preferencia!<br/>
           Este documento no tiene valor tributario.
         </div>
-        <script>window.onload = () => { window.print(); }<\/script>
+        <script>window.onload = () => { window.print(); }</script>
       </body>
       </html>
     `;
