@@ -11,59 +11,42 @@ import { VENTAS_INICIALES, PRODUCTOS, CLIENTES } from './data/mockData';
 import { supabase, supabaseEnabled } from './lib/supabase';
 
 function RequireAuth({ session, children }) {
-  if (session === undefined) return <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>Cargando...</div>;
+  if (session === undefined) return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center' }}>Cargando...</div>
+  );
   if (!session) return <Navigate to="/login" replace />;
   return children;
 }
 
 export default function App() {
-  const [session, setSession] = useState();
-  const [ventas, setVentas] = useState(supabaseEnabled ? [] : VENTAS_INICIALES);
+  const [session, setSession]     = useState();
+  const [ventas, setVentas]       = useState(supabaseEnabled ? [] : VENTAS_INICIALES);
   const [productos, setProductos] = useState(supabaseEnabled ? [] : PRODUCTOS);
-  const [clientes, setClientes] = useState(supabaseEnabled ? [] : CLIENTES);
+  const [clientes, setClientes]   = useState(supabaseEnabled ? [] : CLIENTES);
 
   useEffect(() => {
-    if (!supabaseEnabled) {
-      setSession(null);
-      return;
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
+    if (!supabaseEnabled) { setSession(null); return; }
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => subscription?.unsubscribe();
   }, []);
 
   useEffect(() => {
     if (!supabaseEnabled || !session) return;
-
     const fetchData = async () => {
-      // Cargar Productos
       const { data: p } = await supabase.from('productos').select('*').order('nombre');
       if (p) setProductos(p);
 
-      // Cargar Clientes
       const { data: c } = await supabase.from('clientes').select('*').order('nombre');
       if (c) setClientes(c);
 
-      // Cargar Ventas con relaciones (Join)
-      const { data: v } = await supabase.from('ventas')
-        .select('*, cliente:clientes(*), producto:productos(*)')
+      // Cuando conectes Supabase actualiza el select para traer items (tabla venta_items)
+      const { data: v } = await supabase
+        .from('ventas')
+        .select('*, cliente:clientes(*)')
         .order('fecha', { ascending: false });
-
-      if (v) {
-        setVentas(v.map(item => ({
-          ...item,
-          precioUnit: item.precio_unit // Mapeo de snake_case a camelCase
-        })));
-      }
+      if (v) setVentas(v);
     };
-
     fetchData();
   }, [session]);
 
@@ -73,29 +56,56 @@ export default function App() {
     setSession(null);
   };
 
+  // ─────────────────────────────────────────────────────────────
+  // agregarVenta — soporta la nueva estructura con items[]
+  // ─────────────────────────────────────────────────────────────
   const agregarVenta = async (venta) => {
+    // Sin Supabase: solo actualiza el estado local
     if (!supabaseEnabled) {
       setVentas(prev => [venta, ...prev]);
       return;
     }
-    const { data, error } = await supabase.from('ventas').insert([{
-      id: venta.id,
-      fecha: venta.fecha,
-      cliente_id: venta.cliente.id,
-      producto_id: venta.producto.id,
-      tipo: venta.tipo,
-      cantidad: venta.cantidad,
-      precio_unit: venta.precioUnit,
-      total: venta.total
-    }]).select('*, cliente:clientes(*), producto:productos(*)').single();
 
-    if (error) {
-      console.error('Error al guardar venta en Supabase:', error);
+    // ── CON SUPABASE (cuando lo conectes) ──
+    // La venta ahora tiene items[], necesitarás una tabla venta_items.
+    // Ejemplo de estructura sugerida:
+    //
+    // Tabla ventas:  id, fecha, cliente_id, total
+    // Tabla venta_items: id, venta_id, producto_id, tipo, cantidad, precio_unit, total
+    //
+    // Por ahora insertamos solo la cabecera de la venta:
+    const { data: ventaCreada, error: errorVenta } = await supabase
+      .from('ventas')
+      .insert([{
+        id:         venta.id,
+        fecha:      venta.fecha,
+        cliente_id: venta.cliente?.id || null,
+        total:      venta.total,
+      }])
+      .select('*, cliente:clientes(*)')
+      .single();
+
+    if (errorVenta) {
+      console.error('Error al guardar venta:', errorVenta);
       return;
     }
-    
-    if (data) {
-      setVentas(prev => [{ ...data, precioUnit: data.precio_unit }, ...prev]);
+
+    // Insertar los ítems
+    if (ventaCreada && venta.items?.length > 0) {
+      const itemsParaInsertar = venta.items.map(item => ({
+        venta_id:    ventaCreada.id,
+        producto_id: item.producto?.id || null,
+        tipo:        item.tipo,
+        cantidad:    item.cantidad,
+        precio_unit: item.precioUnit,
+        total:       item.total,
+      }));
+      const { error: errorItems } = await supabase.from('venta_items').insert(itemsParaInsertar);
+      if (errorItems) console.error('Error al guardar ítems:', errorItems);
+    }
+
+    if (ventaCreada) {
+      setVentas(prev => [{ ...ventaCreada, items: venta.items }, ...prev]);
     }
   };
 
@@ -104,15 +114,10 @@ export default function App() {
       setProductos(prev => prev.map(p => p.id === prod.id ? prod : p));
       return;
     }
-    // Separamos el ID del resto de los datos para no intentar actualizar la llave primaria
-    const { id, ...datosActualizados } = prod;
-    const { error } = await supabase.from('productos').update(datosActualizados).eq('id', id);
-
-    if (!error) {
-      setProductos(prev => prev.map(p => p.id === prod.id ? prod : p));
-    } else {
-      console.error('Error al actualizar producto:', error);
-    }
+    const { id, ...datos } = prod;
+    const { error } = await supabase.from('productos').update(datos).eq('id', id);
+    if (!error) setProductos(prev => prev.map(p => p.id === prod.id ? prod : p));
+    else console.error('Error al actualizar producto:', error);
   };
 
   const agregarProducto = async (prod) => {
@@ -120,15 +125,10 @@ export default function App() {
       setProductos(prev => [...prev, { ...prod, id: Date.now() }]);
       return;
     }
-    // Eliminamos el id del objeto para que Supabase genere el suyo propio (serial)
-    const { id, ...nuevoProducto } = prod;
-    const { data, error } = await supabase.from('productos').insert([nuevoProducto]).select().single();
-
-    if (error) {
-      console.error('Error al insertar producto en Supabase:', error);
-      return;
-    }
-    if (data) setProductos(prev => [...prev, data]);
+    const { id, ...nuevo } = prod;
+    const { data, error } = await supabase.from('productos').insert([nuevo]).select().single();
+    if (error) console.error('Error al insertar producto:', error);
+    else if (data) setProductos(prev => [...prev, data]);
   };
 
   const agregarCliente = async (cli) => {
@@ -136,15 +136,10 @@ export default function App() {
       setClientes(prev => [...prev, { ...cli, id: Date.now() }]);
       return;
     }
-    // Eliminamos el id para permitir el autoincremento en la base de datos
-    const { id, ...nuevoCliente } = cli;
-    const { data, error } = await supabase.from('clientes').insert([nuevoCliente]).select().single();
-
-    if (error) {
-      console.error('Error al insertar cliente en Supabase:', error);
-      return;
-    }
-    if (data) setClientes(prev => [...prev, data]);
+    const { id, ...nuevo } = cli;
+    const { data, error } = await supabase.from('clientes').insert([nuevo]).select().single();
+    if (error) console.error('Error al insertar cliente:', error);
+    else if (data) setClientes(prev => [...prev, data]);
   };
 
   const ctx = { ventas, productos, clientes, agregarVenta, actualizarProducto, agregarProducto, agregarCliente };
@@ -159,10 +154,10 @@ export default function App() {
           </RequireAuth>
         }>
           <Route index element={<Navigate to="/ventas" replace />} />
-          <Route path="ventas" element={<PuntoVenta {...ctx} />} />
-          <Route path="inventario" element={<Inventario {...ctx} />} />
-          <Route path="clientes" element={<Clientes {...ctx} />} />
-          <Route path="reportes" element={<Reportes {...ctx} />} />
+          <Route path="ventas"     element={<PuntoVenta  {...ctx} />} />
+          <Route path="inventario" element={<Inventario  {...ctx} />} />
+          <Route path="clientes"   element={<Clientes    {...ctx} />} />
+          <Route path="reportes"   element={<Reportes    {...ctx} />} />
         </Route>
       </Routes>
     </BrowserRouter>

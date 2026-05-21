@@ -6,8 +6,23 @@ import './NotaVenta.css';
 export default function NotaVenta({ venta, onClose }) {
   if (!venta) return null;
 
+  // Compatibilidad: soporta venta con items[] (nueva) y venta con producto (vieja)
+  const items = venta.items
+    ? venta.items
+    : [{ producto: venta.producto, precioUnit: venta.precioUnit, cantidad: venta.cantidad, tipo: venta.tipo, total: venta.total }];
+
   const handlePrint = () => {
-    const win = window.open('', '_blank', 'width=420,height=650');
+    const filas = items.map((item, i) => `
+      <tr>
+        <td>${String(i + 1).padStart(3, '0')}</td>
+        <td>${item.producto?.nombre || '—'}</td>
+        <td class="r">S/${(item.precioUnit || 0).toFixed(2)}</td>
+        <td class="r">${item.cantidad} ${item.tipo}</td>
+        <td class="r">S/${(item.total || 0).toFixed(2)}</td>
+      </tr>
+    `).join('');
+
+    const win = window.open('', '_blank', 'width=420,height=700');
     const html = `
       <!DOCTYPE html>
       <html>
@@ -48,23 +63,16 @@ export default function NotaVenta({ venta, onClose }) {
         <hr class="sep"/>
         <table>
           <thead>
-            <tr><th>Desc.</th><th class="r">P.Unit</th><th class="r">Cant.</th><th class="r">Total</th></tr>
+            <tr><th>#</th><th>Descripción</th><th class="r">P.Unit</th><th class="r">Cant.</th><th class="r">Total</th></tr>
           </thead>
-          <tbody>
-            <tr>
-              <td>${venta.producto.nombre}</td>
-              <td class="r">S/${venta.precioUnit.toFixed(2)}</td>
-              <td class="r">${venta.cantidad} ${venta.tipo}</td>
-              <td class="r">S/${venta.total.toFixed(2)}</td>
-            </tr>
-          </tbody>
+          <tbody>${filas}</tbody>
         </table>
         <div class="total-line">TOTAL: S/. ${venta.total.toFixed(2)}</div>
         <div class="pie">
           ¡Gracias por su preferencia!<br/>
           Este documento no tiene valor tributario.
         </div>
-        <script>window.onload = () => { window.print(); }</script>
+        <script>window.onload = () => { window.print(); }<\/script>
       </body>
       </html>
     `;
@@ -113,6 +121,7 @@ export default function NotaVenta({ venta, onClose }) {
           <table className="nv-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Descripción</th>
                 <th className="r">P.Unit</th>
                 <th className="r">Cant.</th>
@@ -120,12 +129,15 @@ export default function NotaVenta({ venta, onClose }) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{venta.producto.nombre}</td>
-                <td className="r">S/{venta.precioUnit.toFixed(2)}</td>
-                <td className="r">{venta.cantidad} {venta.tipo}</td>
-                <td className="r">S/{venta.total.toFixed(2)}</td>
-              </tr>
+              {items.map((item, i) => (
+                <tr key={i}>
+                  <td>{String(i + 1).padStart(3, '0')}</td>
+                  <td>{item.producto?.nombre || '—'}</td>
+                  <td className="r">S/{(item.precioUnit || 0).toFixed(2)}</td>
+                  <td className="r">{item.cantidad} {item.tipo}</td>
+                  <td className="r">S/{(item.total || 0).toFixed(2)}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
 

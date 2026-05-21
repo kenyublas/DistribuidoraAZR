@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import './Clientes.css';
 
 export default function Clientes({ clientes, ventas, agregarCliente }) {
-  const [busqueda, setBusqueda]   = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [mostrarForm, setMostrarForm] = useState(false);
   const [form, setForm] = useState({ nombre: '', dni: '', telefono: '', direccion: '' });
 
@@ -19,8 +19,8 @@ export default function Clientes({ clientes, ventas, agregarCliente }) {
     setMostrarForm(false);
   };
 
-  const ventasCliente = (id) => ventas.filter(v => v.cliente.id === id);
-  const totalCliente  = (id) => ventasCliente(id).reduce((s, v) => s + v.total, 0);
+  const ventasCliente = (id) => ventas.filter(v => v.cliente?.id === id);
+  const totalCliente = (id) => ventasCliente(id).reduce((s, v) => s + v.total, 0);
 
   return (
     <div className="cli-page">
@@ -76,7 +76,7 @@ export default function Clientes({ clientes, ventas, agregarCliente }) {
       <div className="cli-list">
         {filtrados.map(c => {
           const nVentas = ventasCliente(c.id).length;
-          const monto   = totalCliente(c.id);
+          const monto = totalCliente(c.id);
           return (
             <div key={c.id} className="cli-card cli-item">
               <div className="cli-avatar">{c.nombre.charAt(0).toUpperCase()}</div>

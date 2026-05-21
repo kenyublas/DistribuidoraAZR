@@ -30,7 +30,11 @@ export default function Reportes({ ventas, productos }) {
   // Ventas por producto (pie)
   const pieData = productos.map(p => ({
     name: p.nombre,
-    value: ventasFiltradas.filter(v => v.producto.id === p.id).reduce((s, v) => s + v.total, 0),
+    value: ventasFiltradas.reduce((acc, v) => {
+      const sum = v.items?.filter(i => i.producto?.id === p.id)
+        .reduce((s, i) => s + i.total, 0) || 0;
+      return acc + sum;
+    }, 0),
   })).filter(d => d.value > 0);
 
   // Ventas por día (bar) - últimos 7 días
@@ -48,7 +52,7 @@ export default function Reportes({ ventas, productos }) {
   // Top clientes
   const clienteMap = {};
   ventasFiltradas.forEach(v => {
-    const k = v.cliente.nombre;
+    const k = v.cliente?.nombre || 'Desconocido';
     clienteMap[k] = (clienteMap[k] || 0) + v.total;
   });
   const topClientes = Object.entries(clienteMap)
@@ -139,8 +143,8 @@ export default function Reportes({ ventas, productos }) {
           <div key={v.id} className="rep-row">
             <div className="rep-row-left">
               <span className="rep-row-id">{v.id}</span>
-              <span className="rep-row-prod">{v.producto.nombre}</span>
-              <span className="rep-row-cli muted">{v.cliente.nombre}</span>
+              <span className="rep-row-prod">{v.items?.length} productos</span>
+              <span className="rep-row-cli muted">{v.cliente?.nombre || 'Cliente Genérico'}</span>
             </div>
             <div className="rep-row-right">
               <span className="green bold">S/. {v.total.toFixed(2)}</span>

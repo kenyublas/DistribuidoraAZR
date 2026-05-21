@@ -52,6 +52,8 @@
   font-size: 13px;
   width: 100%;
   outline: none;
+  background: #f8fafc;
+  color: var(--text);
 }
 .pv-input-nombre:focus { border-color: var(--accent2); }
 
@@ -71,13 +73,75 @@
   border-color: var(--accent2);
 }
 
+/* ── CARRITO / LISTA DE ÍTEMS ── */
+.pv-cart-list {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pv-cart-list label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.pv-cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  gap: 8px;
+}
+.pv-cart-item-info { flex: 1; min-width: 0; }
+.pv-cart-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pv-cart-item-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.pv-cart-item-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  white-space: nowrap;
+}
+.pv-btn-remove {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.pv-btn-remove:hover { background: #fee2e2; }
+
 .pv-total-row {
   display: flex; align-items: center; justify-content: space-between;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 8px;
   padding: 10px 14px;
-  margin: 4px 0 12px;
+  margin-top: 4px;
 }
 .pv-total-label  { font-size: 13px; font-weight: 600; color: var(--accent2); }
 .pv-total-amount { font-size: 24px; font-weight: 700; color: var(--accent2); }
@@ -91,6 +155,7 @@
   transition: background 0.15s;
 }
 .pv-btn-primary:hover { background: var(--navy3); }
+.pv-btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
 .pv-btn-secondary {
   padding: 10px 16px;
   background: #f1f5f9;
