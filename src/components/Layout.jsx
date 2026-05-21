@@ -4,13 +4,13 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import './Layout.css';
 
 const NAV = [
-  { to: '/ventas',     icon: '🛒', label: 'Punto de Venta' },
-  { to: '/inventario', icon: '📦', label: 'Inventario'     },
-  { to: '/clientes',   icon: '👥', label: 'Clientes'       },
-  { to: '/reportes',   icon: '📊', label: 'Reportes'       },
+  { to: '/ventas', icon: '🛒', label: 'Punto de Venta' },
+  { to: '/inventario', icon: '📦', label: 'Inventario' },
+  { to: '/clientes', icon: '👥', label: 'Clientes' },
+  { to: '/reportes', icon: '📊', label: 'Reportes' },
 ];
 
-export default function Layout() {
+export default function Layout({ session, onSignOut }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const currentPage = NAV.find(n => location.pathname.startsWith(n.to))?.label || '';
@@ -64,6 +64,11 @@ export default function Layout() {
           <span className="topbar-title">{currentPage}</span>
           <div className="topbar-right">
             <span className="topbar-date">{new Date().toLocaleDateString('es-PE')}</span>
+            {session && (
+              <button className="topbar-logout" onClick={onSignOut} type="button">
+                Salir
+              </button>
+            )}
           </div>
         </header>
 
