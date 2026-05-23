@@ -3,13 +3,32 @@ import React from 'react';
 import { EMPRESA } from '../data/mockData';
 import './NotaVenta.css';
 
-export default function NotaVenta({ venta, onClose }) {
+export default function NotaVenta({ venta, config, onClose }) {
   if (!venta) return null;
 
-  // Compatibilidad: soporta venta con items[] (nueva) y venta con producto (vieja)
+  // Datos del negocio: usa Configuración si existe, si no los de mockData
+  const negocio = {
+    nombre: config?.nombre || EMPRESA?.nombre || 'Mi Negocio',
+    direccion: config?.direccion || EMPRESA?.direccion || '',
+    telefono: config?.telefono || EMPRESA?.telefono || '',
+    logo_url: config?.logo_url || '',
+  };
+
+  // Estado de pago (soporta dato de BD 'estado_pago' o recién creado 'estadoPago')
+  const estado = venta.estado_pago || venta.estadoPago || 'contado';
+  const esFiado = estado === 'fiado';
+  const esPagado = estado === 'pagado';
+
   const items = venta.items
     ? venta.items
     : [{ producto: venta.producto, precioUnit: venta.precioUnit, cantidad: venta.cantidad, tipo: venta.tipo, total: venta.total }];
+
+  // Texto y color del sello de estado
+  const sello = esFiado
+    ? { texto: 'FIADO · PENDIENTE DE PAGO', color: '#dc2626', bg: '#fee2e2' }
+    : esPagado
+      ? { texto: `PAGADO${venta.fecha_pago ? ' · ' + new Date(venta.fecha_pago + 'T12:00:00').toLocaleDateString('es-PE') : ''}`, color: '#059669', bg: '#d1fae5' }
+      : { texto: 'PAGADO AL CONTADO', color: '#059669', bg: '#d1fae5' };
 
   const handlePrint = () => {
     const filas = items.map((item, i) => `
@@ -21,6 +40,10 @@ export default function NotaVenta({ venta, onClose }) {
         <td class="r">S/${(item.total || 0).toFixed(2)}</td>
       </tr>
     `).join('');
+
+    const logoHtml = negocio.logo_url
+      ? `<img src="${negocio.logo_url}" style="max-height:55px;max-width:140px;object-fit:contain;"/>`
+      : `<div style="font-size:18px;">🐓</div>`;
 
     const win = window.open('', '_blank', 'width=420,height=700');
     const html = `
@@ -35,6 +58,7 @@ export default function NotaVenta({ venta, onClose }) {
           .bold { font-weight: bold; }
           .empresa { text-align: center; margin-bottom: 12px; }
           .titulo-box { border: 2px solid #000; display: inline-block; padding: 3px 20px; font-weight: bold; font-size: 13px; letter-spacing: 1px; }
+          .sello { display:inline-block; margin-top:8px; padding:4px 14px; border:2px solid ${sello.color}; color:${sello.color}; font-weight:bold; font-size:12px; letter-spacing:1px; border-radius:4px; }
           .sep { border: none; border-top: 1px dashed #000; margin: 8px 0; }
           table { width: 100%; border-collapse: collapse; margin: 8px 0; }
           th { border-bottom: 1px solid #000; padding: 2px 4px; text-align: left; font-size: 11px; }
@@ -46,20 +70,23 @@ export default function NotaVenta({ venta, onClose }) {
       </head>
       <body>
         <div class="empresa">
-          <div style="font-size:18px;">🐓</div>
-          <div class="bold" style="font-size:15px;">${EMPRESA.nombre.toUpperCase()}</div>
-          <div style="font-size:11px;">${EMPRESA.direccion}</div>
-          <div style="font-size:11px;">Tel: ${EMPRESA.telefono}</div>
+          ${logoHtml}
+          <div class="bold" style="font-size:15px;">${negocio.nombre.toUpperCase()}</div>
+          <div style="font-size:11px;">${negocio.direccion}</div>
+          <div style="font-size:11px;">Tel: ${negocio.telefono}</div>
+        </div>
+        <div class="center" style="margin-bottom:6px;">
+          <span class="titulo-box">NOTA DE VENTA</span>
         </div>
         <div class="center" style="margin-bottom:10px;">
-          <span class="titulo-box">NOTA DE VENTA</span>
+          <span class="sello">${sello.texto}</span>
         </div>
         <hr class="sep"/>
         <div><b>Cliente:</b> ${venta.cliente.nombre}</div>
         ${venta.cliente.dni ? `<div><b>DNI/RUC:</b> ${venta.cliente.dni}</div>` : ''}
         ${venta.cliente.direccion ? `<div><b>Dirección:</b> ${venta.cliente.direccion}</div>` : ''}
         <div><b>Fecha:</b> ${new Date(venta.fecha + 'T12:00:00').toLocaleDateString('es-PE')}</div>
-        <div><b>N°:</b> ${venta.id}</div>
+        <div><b>N° de Nota:</b> ${venta.id}</div>
         <hr class="sep"/>
         <table>
           <thead>
@@ -91,14 +118,27 @@ export default function NotaVenta({ venta, onClose }) {
 
         <div className="nv-body">
           <div className="nv-empresa">
-            <div className="nv-emoji">🐓</div>
-            <div className="nv-emp-name">{EMPRESA.nombre.toUpperCase()}</div>
-            <div className="nv-emp-sub">{EMPRESA.direccion}</div>
-            <div className="nv-emp-sub">Tel: {EMPRESA.telefono}</div>
+            {negocio.logo_url
+              ? <img src={negocio.logo_url} alt="logo" style={{ maxHeight: 55, maxWidth: 140, objectFit: 'contain' }} />
+              : <div className="nv-emoji"></div>}
+            <div className="nv-emp-name">{negocio.nombre.toUpperCase()}</div>
+            <div className="nv-emp-sub">{negocio.direccion}</div>
+            <div className="nv-emp-sub">Tel: {negocio.telefono}</div>
           </div>
 
           <div className="nv-titulo-wrap">
             <span className="nv-titulo-box">NOTA DE VENTA</span>
+          </div>
+
+          {/* Sello de estado de pago */}
+          <div style={{ textAlign: 'center', margin: '8px 0' }}>
+            <span style={{
+              display: 'inline-block', padding: '4px 14px', borderRadius: 6,
+              border: `2px solid ${sello.color}`, color: sello.color, background: sello.bg,
+              fontWeight: 700, fontSize: 12, letterSpacing: 0.5,
+            }}>
+              {sello.texto}
+            </span>
           </div>
 
           <div className="nv-info">
@@ -115,7 +155,7 @@ export default function NotaVenta({ venta, onClose }) {
               <span>Fecha:</span>
               <span>{new Date(venta.fecha + 'T12:00:00').toLocaleDateString('es-PE')}</span>
             </div>
-            <div className="nv-info-row"><span>N° Comprobante:</span><span>{venta.id}</span></div>
+            <div className="nv-info-row"><span>N° de Nota:</span><span>{venta.id}</span></div>
           </div>
 
           <table className="nv-table">
@@ -151,7 +191,7 @@ export default function NotaVenta({ venta, onClose }) {
 
         <div className="nv-footer">
           <button className="nv-btn-close" onClick={onClose}>Cerrar</button>
-          <button className="nv-btn-print" onClick={handlePrint}>🖨️ Imprimir / PDF</button>
+          <button className="nv-btn-print" onClick={handlePrint}>Imprimir / PDF</button>
         </div>
       </div>
     </div>

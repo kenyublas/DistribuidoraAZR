@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import './Login.css';
-
-// 🔑 CAMBIA TU CONTRASEÑA AQUÍ FÁCILMENTE CUANDO QUIERAS
-const ADMIN_PASSWORD = 'Jefriz23'; 
 
 export default function Login({ session, onSignIn }) {
     const navigate = useNavigate();
@@ -22,41 +20,45 @@ export default function Login({ session, onSignIn }) {
         event.preventDefault();
 
         if (!email.trim() || !password.trim()) {
-            setMessage('Ingresa un usuario y contraseña válidos.');
+            setMessage('Ingresa tu correo y contraseña.');
             return;
         }
 
         setLoading(true);
         setMessage('');
 
-        const identifier = email.trim().toLowerCase();
-        
-        // 1. Validar que el usuario sea estrictamente 'familia'
-        if (identifier !== 'familia') {
-            setMessage('Solo se permite ingresar con la cuenta familia.');
-             setLoading(false);
-            return;
-        }
+        // Login REAL con Supabase Auth (correo + contraseña)
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password: password,
+        });
 
-        // 2. Validar la contraseña usando la constante local
-        if (password !== ADMIN_PASSWORD) {
-            setMessage('Usuario o contraseña incorrectos.');
+        if (error) {
+            // Mensajes claros según el tipo de error
+            if (error.message.includes('Invalid login credentials')) {
+                setMessage('Correo o contraseña incorrectos.');
+            } else if (error.message.includes('Email not confirmed')) {
+                setMessage('El correo no está confirmado. Actívalo en Supabase.');
+            } else {
+                setMessage('No se pudo iniciar sesión. Intenta de nuevo.');
+            }
             setLoading(false);
             return;
         }
 
-        // 3. Si todo está bien, simulamos la sesión y entramos al sistema
-        // Pasamos un objeto que simula la estructura de sesión que espera tu App.js
-        onSignIn({ user: { email: 'familia' } });
-        navigate('/ventas', { replace: true });
+        // Sesión válida: avisamos a App.js y entramos
+        if (data?.session) {
+            onSignIn(data.session);
+            navigate('/ventas', { replace: true });
+        }
         setLoading(false);
     };
 
     return (
         <div className="login-page">
             <div className="login-card">
-                <div className="login-brand">
-                    <span className="brand-emoji">🐓</span>
+                <div className="login-brand"> {/* Mantener el div */}
+                    <span className="brand-emoji"></span>
                     <div>
                         <h1>Distribuidora A.Z.R</h1>
                         <p>Accede para registrar ventas y ver tu historial.</p>
@@ -65,13 +67,14 @@ export default function Login({ session, onSignIn }) {
 
                 <form className="login-form" onSubmit={handleSubmit}>
                     <label>
-                        Usuario
+                        Correo
                         <input
-                            type="text"
+                            type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="id"
+                            placeholder="tucorreo@gmail.com"
                             disabled={loading}
+                            autoComplete="email"
                         />
                     </label>
 
@@ -83,6 +86,7 @@ export default function Login({ session, onSignIn }) {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="********"
                             disabled={loading}
+                            autoComplete="current-password"
                         />
                     </label>
 

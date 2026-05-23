@@ -25,7 +25,7 @@ export default function Clientes({ clientes, ventas, agregarCliente }) {
   return (
     <div className="cli-page">
       <div className="cli-header">
-        <h2 className="cli-title">Clientes</h2>
+        <h2 className="cli-title">Clientes</h2> {/* Mantener el h2 */}
         <button className="cli-btn-add" onClick={() => setMostrarForm(v => !v)}>
           {mostrarForm ? '✕ Cancelar' : '+ Nuevo Cliente'}
         </button>
@@ -68,7 +68,7 @@ export default function Clientes({ clientes, ventas, agregarCliente }) {
 
       <div className="cli-search-wrap">
         <input className="cli-search"
-          placeholder="🔍 Buscar por nombre o DNI..."
+          placeholder="Buscar por nombre o DNI..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)} />
       </div>
@@ -83,8 +83,8 @@ export default function Clientes({ clientes, ventas, agregarCliente }) {
               <div className="cli-info">
                 <div className="cli-name">{c.nombre}</div>
                 <div className="cli-meta">
-                  {c.dni && <span>DNI: {c.dni}</span>}
-                  {c.telefono && <span> · 📞 {c.telefono}</span>}
+                  {c.dni && <span>DNI: {c.dni}</span>} {/* Mantener el span */}
+                  {c.telefono && <span> · Tel: {c.telefono}</span>}
                   {c.direccion && <span> · {c.direccion}</span>}
                 </div>
               </div>

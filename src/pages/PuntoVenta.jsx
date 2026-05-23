@@ -4,7 +4,7 @@ import NotaVenta from '../components/NotaVenta';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import './PuntoVenta.css';
 
-export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }) {
+export default function PuntoVenta({ ventas, productos, clientes, agregarVenta, marcarPagada, config }) {
   const hoy = new Date().toISOString().split('T')[0];
 
   const [form, setForm] = useState({
@@ -16,13 +16,14 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
     tipo: 'kg',
     precioUnit: '',
     cantidad: '',
+    estadoPago: 'contado',   // NUEVO: 'contado' o 'fiado'
   });
   const [listaItems, setListaItems] = useState([]);
   const [notaVisible, setNotaVisible] = useState(null);
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
 
   const totalActual = (parseFloat(form.precioUnit) || 0) * (parseFloat(form.cantidad) || 0);
-  const totalVenta  = listaItems.reduce((acc, item) => acc + item.total, 0);
+  const totalVenta = listaItems.reduce((acc, item) => acc + item.total, 0);
 
   const handleProdChange = (id) => {
     const prod = productos.find(p => p.id === Number(id));
@@ -80,10 +81,17 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
       alert('La lista de productos está vacía.');
       return;
     }
-    // Buscar cliente seleccionado; si no se encontró o no se seleccionó, usar genérico
+
     const clienteEncontrado = form.clienteId
       ? clientes.find(c => c.id === Number(form.clienteId))
       : null;
+
+    // VALIDACIÓN FIADO: solo se fía a clientes registrados (no genérico, no nombre rápido)
+    if (form.estadoPago === 'fiado' && !clienteEncontrado) {
+      alert('Para registrar una venta FIADA debes seleccionar un cliente de tu lista.\n\nUn fiado a "Cliente Genérico" o a un nombre escrito a mano no se puede controlar después.');
+      return;
+    }
+
     const cli = clienteEncontrado
       ?? { id: 0, nombre: form.clienteNombre?.trim() || 'Cliente Genérico', dni: '', direccion: '' };
 
@@ -93,26 +101,32 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
       cliente: cli,
       items: listaItems,
       total: totalVenta,
+      estadoPago: form.estadoPago,   // NUEVO
     };
 
     agregarVenta(nuevaVenta);
     setNotaVisible(nuevaVenta);
     setListaItems([]);
-    setForm(f => ({ ...f, cantidad: '', clienteId: '', clienteNombre: '' }));
+    setForm(f => ({ ...f, cantidad: '', clienteId: '', clienteNombre: '', estadoPago: 'contado' }));
   };
 
   const handleLimpiar = () => {
     setListaItems([]);
-    setForm(f => ({ ...f, cantidad: '', clienteId: '', clienteNombre: '', productoId: '', precioUnit: '', tipo: 'kg' }));
+    setForm(f => ({ ...f, cantidad: '', clienteId: '', clienteNombre: '', productoId: '', precioUnit: '', tipo: 'kg', estadoPago: 'contado' }));
   };
 
   // Stats del día
   const ventasHoy = ventas.filter(v => v.fecha === hoy);
-  const totalHoy  = ventasHoy.reduce((s, v) => s + v.total, 0);
-  const kgHoy     = ventasHoy.reduce((acc, v) =>
+  const totalHoy = ventasHoy.reduce((s, v) => s + v.total, 0);
+  const kgHoy = ventasHoy.reduce((acc, v) =>
     acc + (v.items?.filter(i => i.tipo === 'kg').reduce((s, i) => s + i.cantidad, 0) || 0), 0);
-  const udsHoy    = ventasHoy.reduce((acc, v) =>
+  const udsHoy = ventasHoy.reduce((acc, v) =>
     acc + (v.items?.filter(i => i.tipo === 'unid').reduce((s, i) => s + i.cantidad, 0) || 0), 0);
+
+  // NUEVO: total fiado pendiente (lo que te deben)
+  const totalFiado = ventas
+    .filter(v => v.estado_pago === 'fiado')
+    .reduce((s, v) => s + v.total, 0);
 
   // Gráfico por producto
   const barData = productos.map(p => ({
@@ -227,8 +241,8 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
           className="pv-btn-generic"
           style={{ width: '100%', marginBottom: 14, padding: '9px', fontWeight: 600, fontSize: 13 }}
           onClick={handleAgregarALista}
-        >
-          ➕ Agregar producto a la nota
+        > {/* Mantener el botón */}
+          Agregar producto a la nota
         </button>
 
         {/* Lista de ítems agregados */}
@@ -253,6 +267,38 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
             </div>
           </div>
         )}
+
+        {/* ── NUEVO: Forma de pago Contado / Fiado ── */}
+        <div className="pv-group" style={{ marginTop: 4 }}>
+          <label>Forma de pago</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => setForm(f => ({ ...f, estadoPago: 'contado' }))}
+              style={{
+                flex: 1, padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                border: form.estadoPago === 'contado' ? '2px solid #059669' : '1px solid #cbd5e1',
+                background: form.estadoPago === 'contado' ? '#059669' : '#fff',
+                color: form.estadoPago === 'contado' ? '#fff' : '#475569',
+              }}> {/* Mantener el botón */}
+              Contado
+            </button>
+            <button
+              onClick={() => setForm(f => ({ ...f, estadoPago: 'fiado' }))}
+              style={{
+                flex: 1, padding: '10px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
+                border: form.estadoPago === 'fiado' ? '2px solid #dc2626' : '1px solid #cbd5e1',
+                background: form.estadoPago === 'fiado' ? '#dc2626' : '#fff',
+                color: form.estadoPago === 'fiado' ? '#fff' : '#475569',
+              }}> {/* Mantener el botón */}
+              Fiado (Crédito)
+            </button>
+          </div>
+          {form.estadoPago === 'fiado' && (
+            <div style={{ fontSize: 11.5, color: '#dc2626', marginTop: 6 }}>
+              Recuerda: el fiado solo se registra a un cliente de tu lista.
+            </div>
+          )}
+        </div>
 
         <div className="pv-actions">
           <button className="pv-btn-primary" onClick={handleRegistrar} disabled={listaItems.length === 0}>
@@ -286,8 +332,10 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
             <div className="pv-stat-val">{udsHoy} uds</div>
           </div>
           <div className="pv-stat">
-            <div className="pv-stat-label">N° Ventas Hoy</div>
-            <div className="pv-stat-val">{ventasHoy.length}</div>
+            <div className="pv-stat-label">Por Cobrar (Fiado)</div>
+            <div className="pv-stat-val" style={{ color: totalFiado > 0 ? '#dc2626' : '#64748b' }}>
+              S/. {totalFiado.toFixed(2)}
+            </div>
           </div>
         </div>
 
@@ -309,29 +357,59 @@ export default function PuntoVenta({ ventas, productos, clientes, agregarVenta }
       <div className="pv-card">
         <div className="pv-card-title">🕐 Ventas Recientes</div>
         {ventas.length === 0 && <p className="muted">Aún no hay ventas registradas.</p>}
-        {ventas.slice(0, 10).map(v => (
-          <div key={v.id} className="pv-venta-item" onClick={() => setVentaSeleccionada(v)}>
-            <div className="pvi-top">
-              <span className="pvi-prod">
-                {v.items?.[0]?.producto?.nombre || 'Venta'}
-                {v.items?.length > 1 ? ` +${v.items.length - 1} más` : ''}
-              </span>
-              <span className="pvi-monto">S/. {v.total.toFixed(2)}</span>
+        {ventas.slice(0, 10).map(v => {
+          const esFiado = v.estado_pago === 'fiado';
+          const esPagado = v.estado_pago === 'pagado';
+          return (
+            <div key={v.id} className="pv-venta-item"
+              onClick={() => setVentaSeleccionada(v)}
+              style={esFiado ? { borderLeft: '4px solid #dc2626', background: '#fef2f2' }
+                : esPagado ? { borderLeft: '4px solid #059669' } : undefined}>
+              <div className="pvi-top">
+                <span className="pvi-prod">
+                  {v.items?.[0]?.producto?.nombre || 'Venta'}
+                  {v.items?.length > 1 ? ` +${v.items.length - 1} más` : ''}
+                </span>
+                <span className="pvi-monto" style={esFiado ? { color: '#dc2626' } : undefined}>
+                  S/. {v.total.toFixed(2)}
+                </span>
+              </div>
+              <div className="pvi-sub">
+                <span>{v.cliente?.nombre || 'Cliente Genérico'}</span>
+                <span>{new Date(v.fecha + 'T12:00:00').toLocaleDateString('es-PE')} · {v.id}</span>
+              </div>
+
+              {/* Etiqueta de estado + botón ya pagó */}
+              {esFiado && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#dc2626', background: '#fee2e2', padding: '3px 8px', borderRadius: 6 }}>
+                    FIADO · DEBE
+                  </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); if (window.confirm('¿Confirmas que este cliente ya pagó su deuda?')) marcarPagada(v.id); }}
+                    style={{ fontSize: 12, fontWeight: 700, color: '#fff', background: '#059669', border: 'none', padding: '6px 12px', borderRadius: 6, cursor: 'pointer' }}>
+                    ✓ Ya pagó
+                  </button>
+                </div>
+              )}
+              {esPagado && (
+                <div style={{ marginTop: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#059669', background: '#d1fae5', padding: '3px 8px', borderRadius: 6 }}>
+                    ✓ FIADO PAGADO {v.fecha_pago ? `· ${new Date(v.fecha_pago + 'T12:00:00').toLocaleDateString('es-PE')}` : ''}
+                  </span>
+                </div>
+              )}
             </div>
-            <div className="pvi-sub">
-              <span>{v.cliente?.nombre || 'Cliente Genérico'}</span>
-              <span>{new Date(v.fecha + 'T12:00:00').toLocaleDateString('es-PE')} · {v.id}</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* MODALES */}
       {notaVisible && (
-        <NotaVenta venta={notaVisible} onClose={() => setNotaVisible(null)} />
+        <NotaVenta venta={notaVisible} config={config} onClose={() => setNotaVisible(null)} />
       )}
       {ventaSeleccionada && (
-        <NotaVenta venta={ventaSeleccionada} onClose={() => setVentaSeleccionada(null)} />
+        <NotaVenta venta={ventaSeleccionada} config={config} onClose={() => setVentaSeleccionada(null)} />
       )}
     </div>
   );
